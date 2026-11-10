@@ -1,6 +1,6 @@
 # Changelog
 
-## 0.1.0 (unreleased)
+## 0.1.0 (2026-11-10)
 
 - First version. Answers "what in this checkout can run code, change agent behaviour, or point files outside the repo?" without executing anything from it.
 - Git: repo-local config read as text (program-running keys such as `core.fsmonitor`, `core.hooksPath`, `core.sshCommand`, `core.pager`, `diff.external`, `filter.*`; includes followed only inside the repo), executable hooks, `.git` files and symlinks.

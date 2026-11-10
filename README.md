@@ -6,9 +6,10 @@ Dependency-free JavaScript ESM. Requires Node 24.8+. Git is optional (used only 
 
 ## 30-second example
 
+Run it once without installing:
+
 ```sh
-git clone https://github.com/hexmillionaire/repo-preflight.git
-node repo-preflight/bin/repo-preflight.mjs path/to/unfamiliar-checkout
+npx -y @hexmillionaire/repo-preflight@0.1.0 path/to/unfamiliar-checkout
 ```
 
 ```text
@@ -46,6 +47,22 @@ Nothing from the repository was executed. [heuristic] findings are pattern match
 ```
 
 Exit code `1` means at least one finding at or above `--fail-on` (default `low`). For an agent, use `--json`.
+
+## Install
+
+```sh
+npm install -g @hexmillionaire/repo-preflight@0.1.0
+repo-preflight path/to/unfamiliar-checkout
+```
+
+Or run it straight from a checkout:
+
+```sh
+git clone https://github.com/hexmillionaire/repo-preflight.git
+node repo-preflight/bin/repo-preflight.mjs path/to/unfamiliar-checkout
+```
+
+The package has no dependencies and no install scripts, so installing it runs nothing.
 
 ## What it checks
 

@@ -1,0 +1,59 @@
+name: Publish
+# Publishes to npm when a version tag is pushed, using npm trusted publishing:
+# GitHub's OIDC token proves which repository and workflow built the package,
+# so no npm token is stored anywhere, and npm attaches a provenance
+# attestation that links the tarball to this commit and this run.
+on:
+  push:
+    tags: ['v[0-9]+.[0-9]+.[0-9]+']
+permissions:
+  contents: read
+concurrency:
+  group: publish
+  cancel-in-progress: false
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    # Add required reviewers to this environment (Settings → Environments)
+    # to get a manual approval step before anything reaches npm.
+    environment: npm
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+          fetch-depth: 0
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: '24'
+          registry-url: 'https://registry.npmjs.org'
+          package-manager-cache: false
+      - name: Tag matches package.json, the changelog, and a commit on main
+        env:
+          TAG: ${{ github.ref_name }}
+        run: |
+          version="$(node -p "require('./package.json').version")"
+          if [ "$TAG" != "v$version" ]; then
+            echo "::error::Tag $TAG does not match package.json version $version."; exit 1
+          fi
+          if ! grep -q "^## $version " CHANGELOG.md; then
+            echo "::error::CHANGELOG.md has no '## $version' section."; exit 1
+          fi
+          if ! git merge-base --is-ancestor "$GITHUB_SHA" origin/main; then
+            echo "::error::Tagged commit $GITHUB_SHA is not on main."; exit 1
+          fi
+      - name: npm supports trusted publishing (11.5.1 or newer)
+        run: |
+          node -e '
+            const [major, minor, patch] = process.argv[1].split(".").map(Number);
+            const ok = major > 11 || (major === 11 && (minor > 5 || (minor === 5 && patch >= 1)));
+            if (!ok) { console.error(`npm ${process.argv[1]} cannot publish with OIDC; need 11.5.1+.`); process.exit(1); }
+          ' "$(npm --version)"
+      - run: npm test
+      - name: Package contents
+        run: npm pack --dry-run
+      # Verbose output includes the trusted-publishing token exchange, so a
+      # rejected publish says why instead of a bare 404.
+      - run: npm publish --provenance --access public --loglevel verbose
