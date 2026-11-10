@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.1.1 (2026-11-10)
+
+- First release published from GitHub Actions with npm trusted publishing (OIDC), so the package carries a provenance attestation linking it to its commit and workflow run. No code changes.
+- `repository.url` uses the `git+https://` form npm expects.
+- A test keeps `package.json` and the exported `VERSION` in step.
+
 ## 0.1.0 (2026-11-10)
 
 - First version. Answers "what in this checkout can run code, change agent behaviour, or point files outside the repo?" without executing anything from it.
