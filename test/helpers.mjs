@@ -1,5 +1,6 @@
 // Shared fixture helpers. Every fixture is built in a fresh temp directory at test time.
 import { execFileSync, spawnSync } from 'node:child_process';
+import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
 import { chmod, mkdir, mkdtemp, realpath, rm, symlink, writeFile } from 'node:fs/promises';
 import os from 'node:os';
 import path from 'node:path';
@@ -14,17 +15,25 @@ export async function tempDir(t) {
   return dir;
 }
 
+// Git for Windows cannot read \\.\nul as a config file, so fixtures get a real empty config and an empty hooks directory.
+const isolation = mkdtempSync(path.join(os.tmpdir(), 'repo-preflight-gitenv-'));
+const EMPTY_CONFIG = path.join(isolation, 'empty.gitconfig');
+const EMPTY_HOOKS = path.join(isolation, 'hooks');
+writeFileSync(EMPTY_CONFIG, '');
+mkdirSync(EMPTY_HOOKS);
+process.on('exit', () => rmSync(isolation, { recursive: true, force: true }));
+
 export function fixtureGitEnv() {
   const env = Object.fromEntries(Object.entries(process.env).filter(([key]) => !/^GIT_/i.test(key)));
   return Object.assign(env, {
-    GIT_CONFIG_NOSYSTEM: '1', GIT_CONFIG_GLOBAL: os.devNull, GIT_TERMINAL_PROMPT: '0',
+    GIT_CONFIG_NOSYSTEM: '1', GIT_CONFIG_GLOBAL: EMPTY_CONFIG, GIT_TERMINAL_PROMPT: '0',
     GIT_AUTHOR_NAME: 'Fixture', GIT_AUTHOR_EMAIL: 'fixture@example.invalid', GIT_COMMITTER_NAME: 'Fixture', GIT_COMMITTER_EMAIL: 'fixture@example.invalid',
   });
 }
 
 /** Git for building fixtures only; the fixtures are ours, but hooks and fsmonitor stay off anyway. */
 export function git(repo, args, input) {
-  return execFileSync('git', ['-c', `core.hooksPath=${os.devNull}`, '-c', 'core.fsmonitor=false', '-c', 'core.autocrlf=false', '-C', repo, ...args],
+  return execFileSync('git', ['-c', `core.hooksPath=${EMPTY_HOOKS}`, '-c', 'core.fsmonitor=false', '-c', 'core.autocrlf=false', '-C', repo, ...args],
     { env: fixtureGitEnv(), input, encoding: 'utf8', windowsHide: true });
 }
 
