@@ -9,11 +9,11 @@ Dependency-free JavaScript ESM. Requires Node 24.8+. Git is optional (used only 
 Run it once without installing:
 
 ```sh
-npx -y @hexmillionaire/repo-preflight@0.1.0 path/to/unfamiliar-checkout
+npx -y @hexmillionaire/repo-preflight@0.1.1 path/to/unfamiliar-checkout
 ```
 
 ```text
-repo-preflight 0.1.0  /home/me/src/unfamiliar-checkout
+repo-preflight 0.1.1  /home/me/src/unfamiliar-checkout
 5 high, 1 medium, 0 low, 1 info
 
 HIGH   .git/config:9  core.fsmonitor
@@ -51,7 +51,7 @@ Exit code `1` means at least one finding at or above `--fail-on` (default `low`)
 ## Install
 
 ```sh
-npm install -g @hexmillionaire/repo-preflight@0.1.0
+npm install -g @hexmillionaire/repo-preflight@0.1.1
 repo-preflight path/to/unfamiliar-checkout
 ```
 
@@ -98,7 +98,7 @@ repo-preflight path/to/checkout --json
 
 ```json
 {
-  "tool": "repo-preflight", "version": "0.1.0", "schemaVersion": 1,
+  "tool": "repo-preflight", "version": "0.1.1", "schemaVersion": 1,
   "root": "/abs/path", "git": { "top": "…", "gitDir": "…", "commonDir": "…", "indexChecked": true },
   "summary": { "high": 1, "medium": 0, "low": 0, "info": 0, "total": 1 },
   "findings": [

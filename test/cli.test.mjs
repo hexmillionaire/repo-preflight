@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict';
+import { readFile } from 'node:fs/promises';
 import path from 'node:path';
 import { test } from 'node:test';
 import { scan, VERSION } from '../src/index.mjs';
@@ -27,6 +28,8 @@ test('exit codes: 0 clean, 1 findings, --fail-on threshold, 2 usage and IO error
   assert.equal(JSON.parse(missing.stdout).error.code, 'USAGE');
   assert.equal(runCli([path.join(risky, 'package.json')]).status, 2);
   assert.equal(runCli(['--version']).stdout.trim(), VERSION);
+  const manifest = JSON.parse(await readFile(new URL('../package.json', import.meta.url), 'utf8'));
+  assert.equal(manifest.version, VERSION, 'package.json and src/index.mjs VERSION must match');
   assert.match(runCli(['--help']).stdout, /Exit codes/);
 });
 

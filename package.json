@@ -1,6 +1,6 @@
 {
   "name": "@hexmillionaire/repo-preflight",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Preflight scan for a checkout you did not write: what can run code, change coding-agent behaviour, or point files outside the repo. Reads Git config, hooks, symlinks, agent configs, lifecycle scripts and instruction files without executing anything. Zero dependencies.",
   "type": "module",
   "bin": { "repo-preflight": "bin/repo-preflight.mjs" },
@@ -8,7 +8,7 @@
   "files": ["src", "bin", "README.md", "LICENSE", "CHANGELOG.md", "SECURITY.md"],
   "scripts": { "test": "node --test \"test/*.test.mjs\"" },
   "engines": { "node": ">=24.8.0" },
-  "repository": { "type": "git", "url": "https://github.com/hexmillionaire/repo-preflight.git" },
+  "repository": { "type": "git", "url": "git+https://github.com/hexmillionaire/repo-preflight.git" },
   "homepage": "https://github.com/hexmillionaire/repo-preflight#readme",
   "bugs": { "url": "https://github.com/hexmillionaire/repo-preflight/issues" },
   "license": "MIT",
