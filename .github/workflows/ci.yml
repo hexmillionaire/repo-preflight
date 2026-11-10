@@ -1,0 +1,36 @@
+name: CI
+on: [push, pull_request]
+permissions:
+  contents: read
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  test:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+        node: ['24']
+        include:
+          - os: ubuntu-latest
+            node: '24.8.0'
+    runs-on: ${{ matrix.os }}
+    name: test (${{ matrix.os }}, Node ${{ matrix.node }})
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: ${{ matrix.node }}
+          check-latest: true
+          package-manager-cache: false
+      - run: npm test
+      - name: Scan this repository with itself
+        run: node bin/repo-preflight.mjs .
+      - name: Package contents
+        shell: bash
+        run: |
+          npm pack --dry-run --json > pack.json
+          node -e "const f=JSON.parse(require('fs').readFileSync('pack.json','utf8'))[0].files.map(x=>x.path);const bad=f.filter(p=>!/^(src\/|bin\/|README\.md$|LICENSE$|CHANGELOG\.md$|SECURITY\.md$|package\.json$)/.test(p));if(bad.length){console.error('Unexpected files:',bad);process.exit(1)}console.log(f.join('\n'))"
